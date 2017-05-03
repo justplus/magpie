@@ -18,7 +18,7 @@ public abstract class AbstractProducer {
     // 生产者名称,唯一
     protected String producerName;
     // 队列
-    private IQueue queue;
+    protected IQueue queue;
 
     /**
      * 开启存量数据生产任务
