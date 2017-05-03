@@ -5,6 +5,6 @@ import ro.fortsoft.pf4j.ExtensionPoint;
 /**
  * Created by zhaoliang on 2017/4/13.
  */
-public interface Consumer extends ExtensionPoint {
+public interface IConsumer extends ExtensionPoint {
     void consume();
 }

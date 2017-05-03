@@ -9,6 +9,8 @@
     <version>1.0.0-SNAPSHOT</version>
     <modules>
         <module>sdk</module>
+        <module>producer</module>
+        <module>consumer</module>
     </modules>
     <packaging>pom</packaging>
 
