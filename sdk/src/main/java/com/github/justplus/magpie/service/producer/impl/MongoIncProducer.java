@@ -6,7 +6,7 @@ import com.github.justplus.magpie.model.TableRule;
 import com.github.justplus.magpie.model.Task;
 import com.github.justplus.magpie.service.producer.AbstractProducer;
 import com.github.justplus.magpie.service.record.IRecord;
-import com.github.justplus.magpie.util.RuleUtil;
+import com.github.justplus.magpie.utils.RuleUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -70,6 +71,15 @@ public class MongoIncProducer extends AbstractProducer {
             record.setLatestPos(this.producerName, String.valueOf(new Date().getTime()));
             logger.info("====={}", oplog.getBizId());
         }
+
+        //没有最新数据时,暂停10s再生产
+        try {
+            TimeUnit.SECONDS.sleep(10);
+            this.produce();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+
         return null;
     }
 

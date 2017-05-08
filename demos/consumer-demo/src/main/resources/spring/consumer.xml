@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <!-- 配置文件 -->
+    <context:property-placeholder location="classpath*:config/*.properties" ignore-unresolvable="true"/>
+    <context:annotation-config/>
+
+    <import resource="base.xml"/>
+
+    <!--################################ 消费者配置 #############################################-->
+    <bean id="demoConsumerListener" class="org.springframework.jms.listener.SimpleMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destinationName" value="estream_homework"/>
+        <property name="messageListener" ref="homeworkConsumer"/>
+        <property name="sessionTransacted" value="true"/>
+        <property name="concurrency" value="20"/>
+    </bean>
+
+    <bean id="homeworkConsumer" class="com.github.justplus.magpie.service.consumer.JmsConsumer">
+        <constructor-arg name="jmsTemplate" ref="jmsTemplate"/>
+        <property name="iFilters">
+            <list>
+                <ref bean="usercenterFilter"/>
+                <ref bean="updateIndexFilter"/>
+            </list>
+        </property>
+        <property name="uFilters">
+            <list>
+                <ref bean="updateIndexFilter"/>
+            </list>
+        </property>
+        <property name="dFilters">
+            <list>
+                <ref bean="updateIndexFilter"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="usercenterFilter" class="com.github.justplus.magpie.filters.GetUserFilter"/>
+    <bean id="updateIndexFilter" class="com.github.justplus.magpie.filters.UpdateIndexFilter"/>
+</beans>

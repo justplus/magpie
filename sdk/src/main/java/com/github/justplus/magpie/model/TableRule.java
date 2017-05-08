@@ -1,6 +1,6 @@
 package com.github.justplus.magpie.model;
 
-import com.github.justplus.magpie.util.RuleUtil;
+import com.github.justplus.magpie.utils.RuleUtil;
 
 import java.util.ArrayList;
 import java.util.List;

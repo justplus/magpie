@@ -1,8 +1,8 @@
 package com.github.justplus.magpie;
 
 import com.github.justplus.magpie.api.IConsumer;
-import com.github.justplus.magpie.util.ParameterCallback;
-import com.github.justplus.magpie.util.PluginUtil;
+import com.github.justplus.magpie.utils.ParameterCallback;
+import com.github.justplus.magpie.utils.PluginUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;

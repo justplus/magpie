@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+    <!--################################ jms配置 #############################################-->
+    <bean id="cachingProducersConnectionFactory"
+          class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory" ref="connectionFactory"/>
+        <property name="reconnectOnException" value="true"/>
+        <property name="sessionCacheSize" value="${jms.sessionCacheSize}"/>
+    </bean>
+
+    <bean id="cachingConsumersConnectionFactory"
+          class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory" ref="connectionFactory"/>
+        <property name="reconnectOnException" value="true"/>
+        <property name="sessionCacheSize" value="${jms.sessionCacheSize}"/>
+        <property name="cacheConsumers" value="false"/>
+        <property name="cacheProducers" value="false"/>
+    </bean>
+
+    <bean id="connectionFactory" class="org.apache.activemq.spring.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="${jms.broker.url}"/>
+        <property name="userName" value="${jms.username}"/>
+        <property name="password" value="${jms.password}"/>
+        <property name="useAsyncSend" value="${jms.useAsyncSend}"/>
+    </bean>
+
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <constructor-arg ref="connectionFactory"/>
+        <property name="pubSubDomain" value="false"/>
+        <property name="explicitQosEnabled" value="true"/>
+        <property name="sessionAcknowledgeMode" value="4"/>
+    </bean>
+
+    <!--################################ 公共配置 #############################################-->
+    <!-- ES客户端 -->
+    <bean id="elesticClient" class="com.github.justplus.magpie.utils.ESClient">
+        <constructor-arg index="0" value="${elastic.address}"/>
+        <constructor-arg index="1" value="${elastic.cluster.name}"/>
+    </bean>
+</beans>
