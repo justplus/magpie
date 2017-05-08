@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+    <!--################################ MySQL配置 #############################################-->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <constructor-arg index="0" ref="dataSource"/>
+    </bean>
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="initialSize" value="${jdbc.initialSize}"/>
+        <property name="minIdle" value="${jdbc.minIdle}"/>
+        <property name="maxActive" value="${jdbc.maxActive}"/>
+        <property name="testOnBorrow" value="${jdbc.testOnBorrow}"/>
+        <property name="testOnReturn" value="${jdbc.testOnReturn}"/>
+        <property name="testWhileIdle" value="${jdbc.testWhileIdle}"/>
+        <property name="filters" value="${jdbc.filtes}"/>
+        <property name="poolPreparedStatements" value="true"/>
+        <property name="maxOpenPreparedStatements" value="${jdbc.maxOpenPreparedStatements}"/>
+    </bean>
+
+    <!--################################ redis配置 #############################################-->
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="jedisConnectionFactory"/>
+        <property name="keySerializer">
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer"/>
+        </property>
+        <property name="hashKeySerializer">
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer"/>
+        </property>
+        <property name="defaultSerializer">
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"/>
+        </property>
+    </bean>
+
+    <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <constructor-arg index="0" ref="jedisPoolConfig"/>
+        <property name="hostName" value="${redis.host}"/>
+        <property name="port" value="${redis.port}"/>
+        <property name="database" value="${redis.db}"/>
+        <property name="timeout" value="${redis.timeout}"/>
+        <property name="password">
+            <null/>
+        </property>
+        <property name="usePool" value="true"/>
+    </bean>
+
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${jedis.pool.maxTotal}"/>
+        <property name="maxIdle" value="${jedis.pool.maxIdle}"/>
+        <property name="minIdle" value="${jedis.pool.minIdle}"/>
+        <property name="maxWaitMillis" value="${jedis.pool.maxWaitMillis}"/>
+        <property name="testOnBorrow" value="${jedis.pool.testOnBorrow}"/>
+        <property name="testOnReturn" value="${jedis.pool.testOnReturn}"/>
+        <property name="testWhileIdle" value="${jedis.pool.testWhileIdle}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${jedis.pool.timeBetweenEvictionRunsMillis}"/>
+    </bean>
+
+
+    <!--################################ jms配置 #############################################-->
+    <bean id="cachingProducersConnectionFactory"
+          class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory" ref="connectionFactory"/>
+        <property name="reconnectOnException" value="true"/>
+        <property name="sessionCacheSize" value="${jms.sessionCacheSize}"/>
+    </bean>
+
+    <bean id="cachingConsumersConnectionFactory"
+          class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory" ref="connectionFactory"/>
+        <property name="reconnectOnException" value="true"/>
+        <property name="sessionCacheSize" value="${jms.sessionCacheSize}"/>
+        <property name="cacheConsumers" value="false"/>
+        <property name="cacheProducers" value="false"/>
+    </bean>
+
+    <bean id="connectionFactory" class="org.apache.activemq.spring.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="${jms.broker.url}"/>
+        <property name="userName" value="${jms.username}"/>
+        <property name="password" value="${jms.password}"/>
+        <property name="useAsyncSend" value="${jms.useAsyncSend}"/>
+    </bean>
+
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <constructor-arg ref="connectionFactory"/>
+        <property name="pubSubDomain" value="false"/>
+        <property name="explicitQosEnabled" value="true"/>
+        <property name="sessionAcknowledgeMode" value="4"/>
+    </bean>
+
+
+    <!--################################ 公共配置 #############################################-->
+    <!-- record -->
+    <bean id="record" class="com.github.justplus.magpie.service.record.RedisRecord">
+        <constructor-arg name="redisTemplate" ref="redisTemplate"/>
+    </bean>
+
+    <!-- 队列配置 -->
+    <bean id="queue" class="com.github.justplus.magpie.service.queue.JMSQueue">
+        <constructor-arg name="jmsTemplate" ref="jmsTemplate"/>
+    </bean>
+</beans>

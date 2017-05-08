@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <!-- 配置文件 -->
+    <context:property-placeholder location="classpath*:config/*.properties" ignore-unresolvable="true"/>
+    <context:annotation-config/>
+
+    <import resource="base.xml"/>
+
+    <!--################################ 生产者配置 #############################################-->
+    <bean id="demoProducer" class="com.github.justplus.magpie.service.producer.impl.MySQLProducer" scope="prototype">
+        <constructor-arg name="querySQL">
+            <value>
+                <![CDATA[select `id`, unix_timestamp(`create_time`)*1000 as createTime, `appkey`, `title`, `class_id` as classId, `commit`, `total`, unix_timestamp(`dead_line`)*1000 as deadline, `teacher_id` as userId, `homework_subject`.`subject` from `homework_property` left join `homework_subject` on `homework_property`.`id`=`homework_subject`.`homework_id` where update_time < [now_dt] order by id asc]]></value>
+        </constructor-arg>
+        <constructor-arg name="limit" value="100"/>
+        <constructor-arg name="jdbcTemplate" ref="jdbcTemplate"/>
+        <property name="producerName" value="demo_producer"/>
+        <property name="queue" ref="queue"/>
+    </bean>
+</beans>

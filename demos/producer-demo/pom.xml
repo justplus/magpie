@@ -5,19 +5,24 @@
 
     <groupId>com.github.justplus.magpie</groupId>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>producer</artifactId>
+    <artifactId>producer-demo</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <description>container for producer plugins</description>
 
     <properties>
-        <main.class>com.github.justplus.magpie.AppStart</main.class>
+        <plugin.id>producer-demo</plugin.id>
+        <plugin.class>com.github.justplus.magpie.demo.ProducerPlugin</plugin.class>
+        <plugin.version>0.0.1</plugin.version>
+        <plugin.provider>justplus</plugin.provider>
+        <plugin.dependencies/>
     </properties>
 
     <dependencies>
+        <!-- scope一定要是provided, 否则可能引发java.lang.LinkageError: loader constraint violation -->
         <dependency>
             <groupId>com.github.justplus.magpie</groupId>
             <artifactId>sdk</artifactId>
             <version>1.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -38,6 +43,27 @@
                 <version>2.5</version>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>unzip jar file</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <unzip src="target/${artifactId}-${version}.${packaging}" dest="target/plugin-classes"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
@@ -62,14 +88,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.1</version>
+                <version>2.4</version>
                 <configuration>
                     <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>${main.class}</mainClass>
-                        </manifest>
+                        <manifestEntries>
+                            <Plugin-Id>${plugin.id}</Plugin-Id>
+                            <Plugin-Class>${plugin.class}</Plugin-Class>
+                            <Plugin-Version>${plugin.version}</Plugin-Version>
+                            <Plugin-Provider>${plugin.provider}</Plugin-Provider>
+                            <Plugin-Dependencies>${plugin.dependencies}</Plugin-Dependencies>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>

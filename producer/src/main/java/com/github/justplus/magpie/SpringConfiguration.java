@@ -40,7 +40,4 @@ public class SpringConfiguration {
     public Producers producers() {
         return new Producers();
     }
-
-    ;
-
 }

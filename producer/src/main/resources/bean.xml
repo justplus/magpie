@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 
-    <bean id="pluginUtil" class="com.github.justplus.magpie.util.PluginUtil">
-        <constructor-arg name="ZKServerUrl" value="${zk.server.url}"/>
-        <constructor-arg name="ZKSessionTimeout" value="${zk.client.timeout}"/>
-        <constructor-arg name="ZKConnectionTimeout" value="${zk.client.connection.timeout}"/>
-        <constructor-arg name="type" value="producer"/>
-    </bean>
+    <!--<context:property-placeholder location="classpath*:*.properties" ignore-unresolvable="true"/>-->
+    <!--<context:annotation-config/>-->
+
+    <!--<bean id="pluginUtil" class="com.github.justplus.magpie.util.PluginUtil">-->
+    <!--<constructor-arg name="ZKServerUrl" value="${zk.server.url}"/>-->
+    <!--<constructor-arg name="ZKSessionTimeout" value="${zk.client.timeout}"/>-->
+    <!--<constructor-arg name="ZKConnectionTimeout" value="${zk.client.connection.timeout}"/>-->
+    <!--<constructor-arg name="type" value="producer"/>-->
+    <!--</bean>-->
 </beans>
