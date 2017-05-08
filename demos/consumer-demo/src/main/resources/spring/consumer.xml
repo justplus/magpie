@@ -16,13 +16,13 @@
     <!--################################ 消费者配置 #############################################-->
     <bean id="demoConsumerListener" class="org.springframework.jms.listener.SimpleMessageListenerContainer">
         <property name="connectionFactory" ref="connectionFactory"/>
-        <property name="destinationName" value="estream_homework"/>
-        <property name="messageListener" ref="homeworkConsumer"/>
+        <property name="destinationName" value="magpie_demo"/>
+        <property name="messageListener" ref="demoConsumer"/>
         <property name="sessionTransacted" value="true"/>
         <property name="concurrency" value="20"/>
     </bean>
 
-    <bean id="homeworkConsumer" class="com.github.justplus.magpie.service.consumer.JmsConsumer">
+    <bean id="demoConsumer" class="com.github.justplus.magpie.service.consumer.JmsConsumer">
         <constructor-arg name="jmsTemplate" ref="jmsTemplate"/>
         <property name="iFilters">
             <list>
