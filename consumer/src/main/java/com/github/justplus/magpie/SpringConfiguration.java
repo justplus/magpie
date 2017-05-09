@@ -24,10 +24,6 @@ public class SpringConfiguration {
             }
 
         };
-        pluginManager.loadPlugins();
-
-        pluginManager.startPlugins();
-
         return pluginManager;
     }
 
@@ -35,11 +31,4 @@ public class SpringConfiguration {
     public static ExtensionsInjector extensionsInjector() {
         return new ExtensionsInjector();
     }
-
-    @Bean
-    public Consumers consumers() {
-        return new Consumers();
-    }
-
-    ;
 }

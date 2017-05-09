@@ -1,12 +1,17 @@
 package com.github.justplus.magpie;
 
 import com.github.justplus.magpie.api.IProducer;
+import com.github.justplus.magpie.model.MagPlugin;
 import com.github.justplus.magpie.utils.ParameterCallback;
 import com.github.justplus.magpie.utils.PluginUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import ro.fortsoft.pf4j.PluginDescriptor;
+import ro.fortsoft.pf4j.PluginManager;
+import ro.fortsoft.pf4j.PluginWrapper;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -16,8 +21,6 @@ import java.util.List;
 public class AppStart {
     public static void main(String[] args) throws Exception {
         ApplicationContext applicationContext = new AnnotationConfigApplicationContext(SpringConfiguration.class);
-        Producers producers = applicationContext.getBean(Producers.class);
-        producers.start();
 
         ApplicationContext xmlApplicationContext = new FileSystemXmlApplicationContext(new String[]{"classpath:bean.xml"}, true);
         final PluginUtil pluginUtil = xmlApplicationContext.getBean(PluginUtil.class);
@@ -42,6 +45,19 @@ public class AppStart {
             }
         });
         pluginUtil.startListening(IProducer.class);
+
+
+        PluginManager pluginManager = (PluginManager) applicationContext.getBean("pluginManager");
+        pluginManager.loadPlugins();
+        List<PluginWrapper> plugins = pluginManager.getPlugins();
+        for (PluginWrapper wrapper : plugins) {
+            //将插件注册到zk
+            PluginDescriptor description = wrapper.getDescriptor();
+            MagPlugin magPlugin = new MagPlugin(description.getPluginId(), description.getVersion().toString(),
+                    Arrays.asList(description.getPluginDescription().split(",")));
+
+            pluginUtil.registerPlugin(magPlugin);
+        }
 
         //保持线程状态
         Thread.sleep(Long.MAX_VALUE);

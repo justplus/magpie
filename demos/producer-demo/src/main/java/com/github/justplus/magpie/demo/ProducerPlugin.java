@@ -1,7 +1,9 @@
 package com.github.justplus.magpie.demo;
 
 import com.github.justplus.magpie.api.IProducer;
+import com.github.justplus.magpie.model.MagPlugin;
 import com.github.justplus.magpie.service.producer.impl.MySQLProducer;
+import com.github.justplus.magpie.utils.PluginUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +11,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import ro.fortsoft.pf4j.Extension;
+import ro.fortsoft.pf4j.PluginDescriptor;
 import ro.fortsoft.pf4j.PluginWrapper;
 import ro.fortsoft.pf4j.spring.SpringPlugin;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
@@ -27,12 +31,12 @@ public class ProducerPlugin extends SpringPlugin {
 
     @Override
     public void start() {
-
     }
 
     @Override
     public void stop() {
         super.stop();
+        PluginDescriptor description = this.getWrapper().getDescriptor();
     }
 
     @Override

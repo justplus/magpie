@@ -1,5 +1,6 @@
 package com.github.justplus.magpie.utils;
 
+import com.github.justplus.magpie.model.MagPlugin;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class PluginUtil {
     //区分是消费者插件还是生产者插件
     private String type;
 
-    private final String ROOT_NODE = "/estream/plugins";
+    private final String ROOT_NODE = "/magpie/plugins";
     private final String PRODUCER_NODE = "producers";
     private final String CONSUMER_NODE = "consumers";
     private ZkClient zkClient;
@@ -64,17 +65,47 @@ public class PluginUtil {
 
     private void init() {
         if (zkClient == null) {
-            zkClient = new ZkClient(this.ZKServerUrl, this.ZKSessionTimeout, this.ZKConnectionTimeout, new ZkStringSerializer());
+            zkClient = new ZkClient(this.ZKServerUrl, this.ZKSessionTimeout, this.ZKConnectionTimeout);
         }
         zkClient.createPersistent(ROOT_NODE + "/" + PRODUCER_NODE, true);
         zkClient.createPersistent(ROOT_NODE + "/" + CONSUMER_NODE, true);
     }
 
-    public void updatePluginState(String pluginId, String data) {
+    /**
+     * 将插件信息注册到zk
+     *
+     * @param magPlugin 插件详情
+     */
+    public void registerPlugin(MagPlugin magPlugin) {
+        if (this.zkClient == null) return;
+        String nodePath = String.format("%s/%ss/%s", ROOT_NODE, this.type, magPlugin.getPluginId());
+        if (!this.zkClient.exists(nodePath)) {
+            this.zkClient.createPersistent(nodePath);
+            this.zkClient.writeData(nodePath, magPlugin);
+        }
+    }
+
+    public void updatePluginState(String pluginId, int data) {
         if (this.zkClient == null) return;
         String nodePath = String.format("%s/%ss/%s", ROOT_NODE, this.type, pluginId);
         if (this.zkClient.exists(nodePath)) {
-            zkClient.writeData(nodePath, data);
+            MagPlugin magPlugin = zkClient.readData(nodePath, true);
+            if (magPlugin != null) {
+                magPlugin.setState(data);
+                zkClient.writeData(nodePath, magPlugin);
+            }
+        }
+    }
+
+    public void updatePluginProgress(String pluginId, String progress) {
+        if (this.zkClient == null) return;
+        String nodePath = String.format("%s/%ss/%s", ROOT_NODE, this.type, pluginId);
+        if (this.zkClient.exists(nodePath)) {
+            MagPlugin magPlugin = zkClient.readData(nodePath, true);
+            if (magPlugin != null) {
+                magPlugin.setProgress(progress);
+                zkClient.writeData(nodePath, magPlugin);
+            }
         }
     }
 
@@ -85,9 +116,10 @@ public class PluginUtil {
             public void handleChildChange(String parentPath, List<String> currentChildren) throws Exception {
                 for (String subNode : currentChildren) {
                     String fullPath = String.format("%s/%ss/%s", ROOT_NODE, type, subNode);
-                    String data = zkClient.readData(fullPath, true);
-                    if ("0".equals(data)) {
-                        loadCallback.setParameter(subNode);
+                    MagPlugin magPlugin = zkClient.readData(fullPath, true);
+                    if (magPlugin == null) return;
+                    if (magPlugin.getState() == 0) {
+                        //loadCallback.setParameter(subNode);
                         String pluginId = pluginManager.loadPlugin(new File(String.format("plugins/%s", subNode)));
                         PluginState pluginState = pluginManager.startPlugin(pluginId);
                         if (pluginState == PluginState.STARTED) {
@@ -97,8 +129,8 @@ public class PluginUtil {
                             loadCallback.call();
                         }
                         //更新当前节点的运行状态
-                        zkClient.writeData(fullPath, "1");
-                    } else if ("-1".equals(data)) {
+                        updatePluginState(pluginId, 1);
+                    } else if (magPlugin.getState() == 2) {
                         unloadCallback.setParameter(subNode);
                         unloadCallback.call();
                         String pluginId = pluginManager.loadPlugin(new File(String.format("plugins/%s", subNode)));
@@ -112,20 +144,6 @@ public class PluginUtil {
             }
         });
     }
-
-//    private void listenNodeChange() throws Exception {
-//        List<String> subNodeList = zkClient.getChildren(String.format("%s/%ss", ROOT_NODE, this.type));
-//        for (String subNode : subNodeList) {
-//            String fullPath = String.format("%s/%ss/%s", ROOT_NODE, this.type, subNode);
-//            byte[] data = zkClient.readData(fullPath, true);
-//            if ("0".equals(new String(data, "utf-8"))) {
-//                func.setParameter(subNode);
-//                func.call();
-//                //更新当前节点的运行状态
-//                zkClient.writeData(fullPath, "1".getBytes());
-//            }
-//        }
-//    }
 
     public void setZKServerUrl(String ZKServerUrl) {
         this.ZKServerUrl = ZKServerUrl;

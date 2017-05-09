@@ -7,13 +7,13 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 
-    <!--<context:property-placeholder location="classpath*:*.properties" ignore-unresolvable="true"/>-->
-    <!--<context:annotation-config/>-->
+    <context:property-placeholder location="classpath*:*.properties" ignore-unresolvable="true"/>
+    <context:annotation-config/>
 
-    <!--<bean id="pluginUtil" class="com.github.justplus.magpie.util.PluginUtil">-->
-    <!--<constructor-arg name="ZKServerUrl" value="${zk.server.url}"/>-->
-    <!--<constructor-arg name="ZKSessionTimeout" value="${zk.client.timeout}"/>-->
-    <!--<constructor-arg name="ZKConnectionTimeout" value="${zk.client.connection.timeout}"/>-->
-    <!--<constructor-arg name="type" value="producer"/>-->
-    <!--</bean>-->
+    <bean id="pluginUtil" class="com.github.justplus.magpie.utils.PluginUtil">
+        <constructor-arg name="ZKServerUrl" value="${zk.server.url}"/>
+        <constructor-arg name="ZKSessionTimeout" value="${zk.client.timeout}"/>
+        <constructor-arg name="ZKConnectionTimeout" value="${zk.client.connection.timeout}"/>
+        <constructor-arg name="type" value="producer"/>
+    </bean>
 </beans>

@@ -23,8 +23,8 @@
 
     <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
+            <magPlugin>
+                <artifactId>maven-assembly-magPlugin</artifactId>
                 <version>2.3</version>
                 <configuration>
                     <descriptors>
@@ -43,11 +43,11 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </magPlugin>
 
-            <plugin>
+            <magPlugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <artifactId>maven-jar-magPlugin</artifactId>
                 <version>2.3.1</version>
                 <configuration>
                     <archive>
@@ -58,7 +58,7 @@
                         </manifest>
                     </archive>
                 </configuration>
-            </plugin>
+            </magPlugin>
         </plugins>
     </build>
 
