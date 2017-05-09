@@ -13,6 +13,7 @@
         <plugin.class>com.github.justplus.magpie.demo.ProducerPlugin</plugin.class>
         <plugin.version>0.0.1</plugin.version>
         <plugin.provider>justplus</plugin.provider>
+        <plugin.description>a,b</plugin.description>
         <plugin.dependencies/>
     </properties>
 
@@ -103,6 +104,7 @@
                             <Plugin-Version>${plugin.version}</Plugin-Version>
                             <Plugin-Provider>${plugin.provider}</Plugin-Provider>
                             <Plugin-Dependencies>${plugin.dependencies}</Plugin-Dependencies>
+                            <plugin-Description>${plugin.description}</plugin-Description>
                         </manifestEntries>
                     </archive>
                 </configuration>
