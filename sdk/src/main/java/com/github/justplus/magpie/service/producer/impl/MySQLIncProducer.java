@@ -132,10 +132,12 @@ public class MySQLIncProducer extends AbstractProducer {
                             }
                             if (columns != null && columns.size() > 0) {
                                 String bizId = RuleUtil.getBizId(columns.get(0).getValue());
+                                bizId = String.format("%s_%s", producerName, bizId);
                                 Map<String, Object> obj = new HashMap<String, Object>();
                                 obj.put("id", bizId);
-                                Task task = new Task(bizId, OperationEnum.INSERT, obj, producerName);
-                                queue.push(task);
+//                                Task task = new Task(bizId, OperationEnum.INSERT, obj, producerName);
+//                                queue.push(task);
+                                pushTask(bizId, obj, OperationEnum.INSERT);
                                 logger.info("==========监听到插入操作, db:{}, table:{}, bizid:{}", database, tableName, bizId);
                             }
                             //更新binlog position位置
@@ -164,6 +166,7 @@ public class MySQLIncProducer extends AbstractProducer {
 
                             if (beforeColumns != null && beforeColumns.size() > 0) {
                                 String bizId = RuleUtil.getBizId(beforeColumns.get(0).getValue());
+                                bizId = String.format("%s_%s", producerName, bizId);
                                 Map<String, Object> obj = new HashMap<String, Object>();
                                 obj.put("id", bizId);
                                 for (int j = 0; j < fields.size(); j++) {
@@ -172,8 +175,9 @@ public class MySQLIncProducer extends AbstractProducer {
                                         obj.put(field, afterColumns.get(j).getValue());
                                     }
                                 }
-                                Task task = new Task(bizId, OperationEnum.UPDATE, obj, producerName);
-                                queue.push(task);
+//                                Task task = new Task(bizId, OperationEnum.UPDATE, obj, producerName);
+//                                queue.push(task);
+                                pushTask(bizId, obj, OperationEnum.UPDATE);
                                 logger.info("==========监听到更新操作, db:{}, table:{}, bizid:{}", database, tableName, bizId);
                             }
                             //更新binlog position位置
@@ -196,10 +200,12 @@ public class MySQLIncProducer extends AbstractProducer {
                             }
                             if (columns != null && columns.size() > 0) {
                                 String bizId = RuleUtil.getBizId(columns.get(0).getValue());
+                                bizId = String.format("%s_%s", producerName, bizId);
                                 Map<String, Object> obj = new HashMap<String, Object>();
                                 obj.put("id", bizId);
-                                Task task = new Task(bizId, OperationEnum.DELETE, obj, producerName);
-                                queue.push(task);
+//                                Task task = new Task(bizId, OperationEnum.DELETE, obj, producerName);
+//                                queue.push(task);
+                                pushTask(bizId, obj, OperationEnum.DELETE);
                                 logger.info("==========监听到删除操作, db:{}, table:{}, bizid:{}", database, tableName, bizId);
                             }
                             //更新binlog position位置

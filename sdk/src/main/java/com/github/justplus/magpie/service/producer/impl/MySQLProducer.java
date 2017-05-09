@@ -60,10 +60,11 @@ public class MySQLProducer extends AbstractProducer {
         for (Map<String, Object> data : queryResult) {
             String bizId;
             if (data.containsKey("id")) {
-                bizId = (String) data.get("id");
+                bizId = String.valueOf(data.get("id"));
             } else {
                 bizId = UUID.randomUUID().toString();
             }
+            bizId = String.format("%s_%s", producerName, bizId);
             Task task = new Task(bizId, OperationEnum.INSERT, data, this.producerName);
             tasks.add(task);
         }

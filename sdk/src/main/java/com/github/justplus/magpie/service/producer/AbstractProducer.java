@@ -1,11 +1,14 @@
 package com.github.justplus.magpie.service.producer;
 
+import com.github.justplus.magpie.model.OperationEnum;
 import com.github.justplus.magpie.model.Task;
+import com.github.justplus.magpie.service.history.IHistory;
 import com.github.justplus.magpie.service.queue.IQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhaoliang on 2017/5/2.
@@ -15,10 +18,12 @@ public abstract class AbstractProducer {
 
     public abstract List<Task> produce();
 
-    // 生产者名称,唯一
+    //生产者名称,唯一
     protected String producerName;
-    // 队列
+    //队列
     protected IQueue queue;
+    //落地记录
+    protected IHistory history;
 
     /**
      * 开启存量数据生产任务
@@ -27,7 +32,9 @@ public abstract class AbstractProducer {
     public boolean start() {
         List<Task> tasks = this.produce();
         if (tasks != null && tasks.size() > 0) {
-            this.queue.bathPush(tasks);
+            for (Task task : tasks) {
+                this.pushTask(task.getBizId(), task.getMetaData(), task.getOperation());
+            }
         }
         return tasks == null || tasks.size() == 0;
     }
@@ -38,6 +45,23 @@ public abstract class AbstractProducer {
      */
     public void incStart() {
         this.produce();
+    }
+
+    /**
+     * 将消息落地后推入队列
+     *
+     * @param bizId     业务id
+     * @param metaData  原始数据
+     * @param operation 操作类型
+     */
+    protected void pushTask(String bizId, Map<String, Object> metaData, OperationEnum operation) {
+        Task task = new Task(bizId, operation, metaData, this.producerName);
+        //落地处理
+        if (history != null) {
+            history.insertProducerHistory(task);
+        }
+        //发送给broker
+        this.queue.push(task);
     }
 
 
@@ -58,5 +82,13 @@ public abstract class AbstractProducer {
 
     public String getProducerName() {
         return producerName;
+    }
+
+    public void setHistory(IHistory history) {
+        this.history = history;
+    }
+
+    public IHistory getHistory() {
+        return history;
     }
 }

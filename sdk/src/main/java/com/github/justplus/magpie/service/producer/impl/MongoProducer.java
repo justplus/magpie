@@ -103,6 +103,7 @@ public class MongoProducer extends AbstractProducer {
 
             String bizId = result.containsKey(this.bizFieldName) ? (String) result.get(this.bizFieldName) :
                     UUID.randomUUID().toString();
+            bizId = String.format("%s_%s", producerName, bizId);
 
             if (result != null && !result.isEmpty()) {
                 task = new Task(bizId, OperationEnum.INSERT, mapper, this.producerName);

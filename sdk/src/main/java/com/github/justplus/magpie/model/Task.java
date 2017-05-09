@@ -2,12 +2,14 @@ package com.github.justplus.magpie.model;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by zhaoliang on 2017/3/28.
  */
 public class Task implements Serializable, Cloneable {
+    private String taskId;
     //业务id, 一般为数据表的主键或者集合中的唯一性字段。该字段尤其重要,是后续更新或者删除操作的唯一标识
     private String bizId;
     //操作类型,新增/更新/删除
@@ -20,10 +22,11 @@ public class Task implements Serializable, Cloneable {
     private String producerName;
 
     public Task(String bizId, OperationEnum operation, Map<String, Object> metaData, String producerName) {
+        this.taskId = UUID.randomUUID().toString();
         this.operation = operation;
         this.metaData = metaData;
         this.producerName = producerName;
-        this.bizId = String.format("%s_%s", producerName, bizId);
+        this.bizId = bizId;
     }
 
     public final int incrementAndGet() {
@@ -44,6 +47,14 @@ public class Task implements Serializable, Cloneable {
     /**********************
      * getter and setter
      **********************/
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
     public String getBizId() {
         return bizId;
     }

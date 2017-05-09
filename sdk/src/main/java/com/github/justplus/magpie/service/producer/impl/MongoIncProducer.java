@@ -65,8 +65,10 @@ public class MongoIncProducer extends AbstractProducer {
             Map<String, Object> o2 = (Map<String, Object>) obj.get("o2");
             Map<String, Object> o = (Map<String, Object>) obj.get("o");
             Oplog oplog = new Oplog(h, op, ns, o2, o);
-            Task task = new Task(oplog.getBizId(), oplog.getOperation(), oplog.oplog2Map(), this.producerName);
-            this.queue.push(task);
+            //Task task = new Task(oplog.getBizId(), oplog.getOperation(), oplog.oplog2Map(), this.producerName);
+            //this.queue.push(task);
+            String bizId = String.format("%s_%s", producerName, oplog.getBizId());
+            pushTask(bizId, oplog.oplog2Map(), oplog.getOperation());
             //更新时间戳
             record.setLatestPos(this.producerName, String.valueOf(new Date().getTime()));
             logger.info("====={}", oplog.getBizId());

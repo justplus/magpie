@@ -1,6 +1,7 @@
 package com.github.justplus.magpie.service.consumer;
 
 import com.github.justplus.magpie.service.filter.AbstractFilter;
+import com.github.justplus.magpie.service.history.IHistory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +19,29 @@ public abstract class AbstractConsumer {
      * uFilter是针对更新操作进行的数据处理器
      * dFilter是针对删除操作进行的数据处理器,暂时可能也用不上,属于保留字段
      */
-    protected List<AbstractFilter> iFilters;
-    protected List<AbstractFilter> uFilters;
-    protected List<AbstractFilter> dFilters;
+    List<AbstractFilter> iFilters;
+    List<AbstractFilter> uFilters;
+    List<AbstractFilter> dFilters;
+
+    private IHistory history;
+
+    boolean canStartConsume(String taskId) {
+        if (history != null) {
+            return this.history.isTaskConsumed(taskId) || !this.history.preTaskConsumed(taskId);
+        }
+        return true;
+    }
+
+    /**
+     * 消息处理完毕后,通知落地的消息变更消费状态
+     *
+     * @param taskId 任务id
+     */
+    void afterProcess(String taskId) {
+        if (history != null) {
+            history.updateConsumerState(taskId);
+        }
+    }
 
 
     public void setuFilters(List<AbstractFilter> uFilters) {
@@ -35,4 +56,7 @@ public abstract class AbstractConsumer {
         this.dFilters = dFilters;
     }
 
+    public void setHistory(IHistory history) {
+        this.history = history;
+    }
 }

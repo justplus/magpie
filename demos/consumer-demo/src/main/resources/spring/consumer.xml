@@ -16,7 +16,7 @@
     <!--################################ 消费者配置 #############################################-->
     <bean id="demoConsumerListener" class="org.springframework.jms.listener.SimpleMessageListenerContainer">
         <property name="connectionFactory" ref="connectionFactory"/>
-        <property name="destinationName" value="magpie_demo"/>
+        <property name="destinationName" value="demo_producer"/>
         <property name="messageListener" ref="demoConsumer"/>
         <property name="sessionTransacted" value="true"/>
         <property name="concurrency" value="20"/>
@@ -40,6 +40,11 @@
                 <ref bean="updateIndexFilter"/>
             </list>
         </property>
+        <property name="history" ref="history"/>
+    </bean>
+
+    <bean id="history" class="com.github.justplus.magpie.service.history.DBHistory">
+        <constructor-arg name="jdbcTemplate" ref="jdbcTemplate"/>
     </bean>
 
     <bean id="usercenterFilter" class="com.github.justplus.magpie.filters.GetUserFilter"/>

@@ -30,7 +30,8 @@ public class JmsConsumer extends AbstractConsumer implements MessageListener {
         Task task = null;
         try {
             task = (Task) ((ObjectMessage) message).getObject();
-            if (task == null) return;
+            //如果消息不合法或者消息已被消费或者消息的前置消息未能被正确消费均不可以被处理,否则可能造成数据不一致
+            if (task == null || !canStartConsume(task.getTaskId())) return;
             logger.info("接收到消息, bizId:{}", task.getBizId());
             Task convertedTask = (Task) task.clone();
             if (convertedTask == null) {
@@ -44,6 +45,8 @@ public class JmsConsumer extends AbstractConsumer implements MessageListener {
             } else if (dFilters != null && task.getOperation() == OperationEnum.DELETE) {
                 filters = dFilters;
             }
+
+            boolean retry = false;
             for (AbstractFilter filter : filters) {
                 try {
                     convertedTask = filter.doFilter(convertedTask);
@@ -53,15 +56,16 @@ public class JmsConsumer extends AbstractConsumer implements MessageListener {
                 } catch (RetryException ex) {
                     //收到该消息, 需要将任务放入重试列表
                     ex.printStackTrace();
-                    throw new JMSException("消息处理失败,需要重试。失败原因: " + ex.getMessage());
+                    retry = true;
+                    break;
+                    //throw new JMSException("消息处理失败,需要重试。失败原因: " + ex.getMessage());
                 }
-//                if (convertedTask == null) {
-//                    throw new JMSException(String.format("消息处理失败, filter[%s]执行结果为null",
-//                            filter.getClass().toString()));
-//                }
             }
             //接收到消息处理完成后必须手动确认
             message.acknowledge();
+            if (!retry) {
+                this.afterProcess(task.getTaskId());
+            }
 
         } catch (JMSException ex) {
             throw JmsUtils.convertJmsAccessException(ex);
